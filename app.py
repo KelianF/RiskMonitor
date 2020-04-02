@@ -21,6 +21,9 @@ df = main()
 Ret = Returns(Selection = True)
 Correl = Ret.corr().reset_index() # round(Ret[[x for x in Ret.columns if "2" in x]][-252:].corr(), 2).reset_index()
 
+Liste = sorted(list(set([''.join([z for z in x if z.isdigit() is False]) for x in Ret.columns])))
+
+
 def generate_table(dataframe):
     return html.Table([
         html.Thead(
@@ -68,28 +71,71 @@ app.layout = html.Div([
                 style_cell={ 'minWidth': '0px', 'maxWidth': '50px'},
                 ),
             
-            # html.Div(id='Test'),
+
             
             html.Div([ html.H4(children="Change Window Size:", style={'display': 'inline-block' }),
                 dcc.Input(id='CorrWindow', value=252, debounce=True)]),
             
             dcc.Graph(id='RollingCorrel')
         ]),
-        dcc.Tab(label='Here, we can add some more stuff', children=[
-            dcc.Graph(
-                figure={
-                    'data': [
-                        {'x': [1, 2, 3], 'y': [2, 4, 3],
-                            'type': 'bar', 'name': 'SF'},
-                        {'x': [1, 2, 3], 'y': [5, 4, 3],
-                         'type': 'bar', 'name': u'Montréal'},
-                    ]
-                }
-            )
+        dcc.Tab(label='Backtest', children=[
+            
+            
+            html.Div(html.Br()),
+            
+            html.Div( className='row', style = {'display' : 'inline-flex', 'position': 'relative'},
+                children=[
+                        html.Div([dcc.Input(id="CommoWeight1", value = 1, type='number', style={'width':'25%', 'position': 'absolute', 'bottom': '0','margin-left': '0px'})]),
+                        html.Div([ html.Label(["Pick a Commo:", dcc.Dropdown(id="CommoPick1", options=[{'label':x, 'value':x} for x in Liste], value="BO",style={'width': '100%'}  )])], style={'margin-left': '70px'}),
+                        html.Div([ html.Label(["Pick a Maturity:", dcc.Dropdown(id="MaturityPick1", options=[{'label':str(x), 'value':str(x)} for x in range(1,5)], value="1",style={'width': '100%'} )])], style={'margin-left': '5px'} ),
+            ]),
+            
+            html.Div( className='row', style = {'display' : 'inline-flex', 'position': 'relative','margin-left': '100px'},
+                children=[
+                        html.Div([dcc.Input(id="CommoWeight2", value = 0, type='number', style={'width':'25%', 'position': 'absolute', 'bottom': '0','margin-left': '0px'})]),
+                        html.Div([ html.Label(["Pick a Commo:", dcc.Dropdown(id="CommoPick2", options=[{'label':x, 'value':x} for x in Liste], value="BO",style={'width': '100%'}  )])], style={'margin-left': '70px'}),
+                        html.Div([ html.Label(["Pick a Maturity:", dcc.Dropdown(id="MaturityPick2", options=[{'label':str(x), 'value':str(x)} for x in range(1,5)], value="1",style={'width': '100%'} )])], style={'margin-left': '5px'} ),
+            ]),
+
+            dcc.Graph(id="ReturnsGraph"),
+            
+
+            
         ]),
     ])
 ])
 
+
+
+
+
+@app.callback(
+    Output("ReturnsGraph", "figure"),
+    [Input("CommoWeight1", "value"), Input("CommoPick1", "value"), Input("MaturityPick1", "value"), Input("CommoWeight2", "value"), Input("CommoPick2", "value"), Input("MaturityPick2", "value")])
+def update_graph(Weight1, Commo1, Maturity1, Weight2, Commo2, Maturity2):
+    Title = ""
+    if Weight1 is None:
+        Weight1 = 0
+    if Weight2 is None:
+        Weight2 = 0
+    if Weight1 != 0: Title = Title + Commo1
+    if Weight2 != 0: Title = Title + Commo2
+    if len(Title) > 2: Title = Title[:2] +" & " + Title[2:]
+    df = Weight1 * Ret[Commo1+Maturity1] + Weight2 * Ret[Commo2+Maturity2]
+    
+    return {
+        'data': [    dict(x= pd.to_datetime(df.index, format="%Y%m%d") , 
+                          y= [x for x in (df.cumsum())], 
+                          name= 'Cumulated Returns'),
+                     dict(x= pd.to_datetime(df.index, format="%Y%m%d") , 
+                          y= [x for x in (df)], 
+                          name= 'Returns ')
+                 ],
+                          
+        'layout': dict(title='Returns of ' + Title)
+        
+        }
+    
  
 @app.callback(
     [Output('Correltable', 'data'), Output('Correltable', 'columns')],
@@ -100,23 +146,11 @@ def update_table(value):
     columns=[{"name": i, "id": i} for i in Correl.columns]
     return (data, columns)
         
-# @app.callback(
-#     Output('Test', 'children'),
-#     [Input('Correltable', 'active_cell'), Input('Correltable', 'data'), Input('CorrWindow', 'value')])
-# def update_output_div(value, df, Window):
-#     if value is None:
-#         return "Click Something"
-#     else:
-#         row = df[value['row']]['index']
-#         col = value["column_id"]
-#         return ' \n You\'ve entered "{}" et "{}" with window of {} '.format(row, col, Window)
-
-
     
 @app.callback(
     Output('RollingCorrel', 'figure'),
     [Input('Correltable', 'active_cell'), Input('Correltable', 'data'), Input('CorrWindow', 'value')])
-def update_graph(X1, X2, Window):
+def update_graph1(X1, X2, Window):
     if X1 is None:
         return {'data':[dict(x=[0,1,2], y=[0,0,0])],'layout':dict(title='Please select a correlation pairs')}
     elif X1["column_id"] == "index":
