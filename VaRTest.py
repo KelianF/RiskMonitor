@@ -62,7 +62,7 @@ def MDD(Ret, Method = "Points"):
     elif Method[:3] == "Per":
         return round(100 * min(Price.Perct), 2)
     elif Method[:3] == "Dat":
-        return pd.to_datetime(Price[Price.Diff == max(Price.Diff)].index[0]).strftime("%Y-%m-%d")
+        return pd.to_datetime(Price[Price.Diff == max(Price.Diff)].index[0], format="%Y%m%d").strftime("%Y-%m-%d")
     else:
         return Price
 
@@ -130,7 +130,7 @@ def main():
         df.to_csv( r"\\10.155.31.149\멀티에셋\Kelian\Risk/" + pd.to_datetime("now").strftime("%Y%m%d%p") + ".csv")
     return df
 
- 
+
  
 
 

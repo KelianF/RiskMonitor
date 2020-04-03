@@ -12,7 +12,7 @@ from xbbg import blp
 import os
 
 
-def Updatedb(Ticker, Start = "20200101", End = pd.Timestamp.today().strftime("%Y%m%d")):
+def Updatedb(Ticker, Start = "20000101", End = pd.Timestamp.today().strftime("%Y%m%d")):
     print(len(Ticker), type(Ticker), Ticker)
     if Ticker + ".csv" in os.listdir(r"\\10.155.31.149\멀티에셋\Kelian\DATA\COMMO"):   # Folder Location
         #print("Got From DataBase")
@@ -71,8 +71,7 @@ Commos = ['BO',
  "CA",
  "QW",
  "KO",
- "ZRO",
- "ZRR",
+"ZRR",
  "ROC",
 "IOE",
 "AC",
