@@ -36,6 +36,8 @@ def Updatedb(Ticker, Start = "20000101", End = pd.Timestamp.today().strftime("%Y
         return Pointer
 
 
+
+
 Commos = ['BO',
  'C ',
  'CC',
@@ -57,13 +59,13 @@ Commos = ['BO',
  'LT',
  'LX',
  'NG',
- 'PL',
+ 'PL', # Here pb
  'QS',
  'S ',
  'SB',
  'SI',
  'SM',
- 'W ',
+ 'W ', # Here no 8
  'XB',
  "CPI",
  "RS",
@@ -71,10 +73,10 @@ Commos = ['BO',
  "CA",
  "QW",
  "KO",
-"ZRR",
+ "ZRR", # Here pb
  "ROC",
-"IOE",
-"AC",
+ "IOE",
+"AC", # Here pb
 "PAL",
 "AE",
 "TRC"
@@ -83,7 +85,8 @@ Commos = ['BO',
 
 
 for x in Commos:
-    for Futures in range(1,5):
+    for Futures in range(1,9):
+        print(x)
         Updatedb(x + str(Futures) + " Comdty")
         
         

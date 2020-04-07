@@ -66,6 +66,29 @@ def MDD(Ret, Method = "Points"):
     else:
         return Price
 
+def MDD60D(Ret, Method = "Points"):   
+    
+    Price = NormalizePrice(Ret)
+    Price["Max"] = 100.0
+    for x in range(1, len(Price)):
+        Price.iloc[x,1] = max(Price.iloc[x-1,1], Price.iloc[x,0])
+    Price["Diff"] = Price.Max - Price.iloc[:,0]
+    Price["Perct"] = 0
+    
+    Base = Price.iloc[0,0]
+    for x in range(len(Price)):
+        if Price.iloc[x,2] == 0.0:
+            Base = Price.iloc[x,0]
+        Price.iloc[x,3] = Price.iloc[x,0] / Base - 1
+    
+    if Method[:3] == "Poi":
+        return round(max(Price.Diff),2)
+    elif Method[:3] == "Per":
+        return round(100 * min(Price.Perct), 2)
+    elif Method[:3] == "Dat":
+        return pd.to_datetime(Price[Price.Diff == max(Price.Diff)].index[0], format="%Y%m%d").strftime("%Y-%m-%d")
+    else:
+        return Price
 
 def MDDdf(Ret):
     MDDDico = {}
@@ -76,17 +99,25 @@ def MDDdf(Ret):
         MDDDico[x]["MDD Dates"] = MDD(Ret[x], Method = "Date") #.astype(str)
     return pd.DataFrame(MDDDico).T
 
+def GivePercentage(df, Date):
+    df = df.iloc[:Date][-60:]
+    df = df + 1
+    df.iloc[0] = 100
+    return df.cumprod().iloc[-1] / 100 -1
+
 def MDD1_5D(Ret):
     MDDDico = {}
     for x in Ret.columns:
         MDDDico[x] = {}
-        MDDDico[x]["MDD 1D"] = Ret[x].min()
-        MDDDico[x]["MDD 2D"] = Ret[x].rolling(2).sum().min()
+        MDDDico[x]["MDD 60D"] = Ret[x].rolling(60).sum().min()
+        MDDDico[x]["MDD 60D %"] = GivePercentage(Ret[x], Ret[x].rolling(60).sum()[Ret[x].rolling(60).sum() == Ret[x].rolling(60).sum().min()].index[0])
         MDDDico[x]["MDD 5D"] = Ret[x].rolling(5).sum().min()
+        MDDDico[x]["MDD 2D"] = Ret[x].rolling(2).sum().min()
         
-        MDDDico[x]["MDD 1D 1Y"] = Ret[x][-252:].min()
-        MDDDico[x]["MDD 2D 1Y"] = Ret[x][-252:].rolling(2).sum().min()
+        MDDDico[x]["MDD 60D 1Y"] = Ret[x][-252:].rolling(60).sum().min()
+        MDDDico[x]["MDD 60D 1Y %"] = GivePercentage(Ret[x], Ret[x][-252:].rolling(60).sum()[Ret[x][-252:].rolling(60).sum() == Ret[x][-252:].rolling(60).sum().min()].index[0])
         MDDDico[x]["MDD 5D 1Y"] = Ret[x][-252:].rolling(5).sum().min()
+        MDDDico[x]["MDD 2D 1Y"] = Ret[x][-252:].rolling(2).sum().min()
     return round(pd.DataFrame(MDDDico).T, 2)
         
 def BasicStats(Ret):
@@ -110,17 +141,18 @@ def SecondOrderMetrics(df, Ret):
     return round(df, 2)
 
 def Returns(Selection = False):
-    df = GetData().dropna()
+    df = GetData() #fillna(0)
     if Selection == True:
-        MainOnes = ['BO', 'C ', 'CC', 'CL', 'CO', 'CT', 'FC', 'GC', 'HG', 'HO', 'JO', 'KC', 'KW', 'LA', 'LC', 'LH', 'LL', 'LN', 'LT', 'LX', 'NG', 'PL', 'QS', 'S ', 'SB', 'SI', 'SM', 'W ','XB']
+        MainOnes = ['BO', 'C ', 'CC', 'CL', 'CO', 'CT', 'FC', 'GC', 'HG', 'HO', 'JO', 'KC', 'KW', 'LA', 'LC', 'LH', 'LL', 'LN', 'LT', 'LX', 'NG', 'QS', 'S ', 'SB', 'SI', 'SM', 'W ','XB']
         df = df[[x for x in df.columns if x[:2] in MainOnes]]
     elif Selection == "Quick":
-        MainOnes = ['BO', 'C ', 'CC', 'CL', 'CO']
+        MainOnes = ['BO', 'C ', 'CC', 'CL', 'CO', 'CT', 'FC', 'GC', 'HG'] #, 'HO', 'JO', 'KC', 'KW', 'LA', 'LC', 'LH', 'LL', 'LN', 'LT', 'LX', 'NG', 'PL', 'QS', 'S ', 'SB', 'SI', 'SM', 'W ']
         df = df[[x for x in df.columns if x[:2] in MainOnes]]
-    return (np.log(df) - np.log(df.shift(1))).dropna()
+    #df = df.dropna()
+    return (np.log(df) - np.log(df.shift(1))).iloc[1:]
 
 def main():
-    Ret = Returns(Selection = "Quick")
+    Ret = Returns(Selection = True)
     if pd.to_datetime("now").strftime("%Y%m%d%p") + ".csv" == max(os.listdir(r"\\10.155.31.149\멀티에셋\Kelian\Risk\\")):
         df = pd.read_csv(r"\\10.155.31.149\멀티에셋\Kelian\Risk\\" + max(os.listdir(r"\\10.155.31.149\멀티에셋\Kelian\Risk\\")), index_col = 0)
     else:
@@ -131,9 +163,9 @@ def main():
     return df
 
 
+
+
  
-
-
 
 
 

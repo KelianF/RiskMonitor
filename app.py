@@ -19,7 +19,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 from VaRTest import main, Returns
 
 df = main()
-Ret = Returns() #Selection = True)
+Ret = Returns(Selection = True)
 Correl = Ret.corr().reset_index() # round(Ret[[x for x in Ret.columns if "2" in x]][-252:].corr(), 2).reset_index()
 
 Liste = sorted(list(set([''.join([z for z in x if z.isdigit() is False]) for x in Ret.columns])))
@@ -54,7 +54,7 @@ app.layout = html.Div([
         dcc.Tab(label='Correlation', children=[
             html.H4(children='Correlation for the First contract'),
             
-            dcc.RadioItems(id="ChoiceCorrelType", value="Commo", options=[{'label':'By Commodities', "value": "Commo"}, {"label":"By Maturities", "value":"Mat"}]),
+            dcc.RadioItems(id="ChoiceCorrelType", value="Mat", options=[{'label':'By Maturities', "value": "Mat"}, {"label":"By Commodities", "value":"Commo"}]),
             
             html.Div([
                 html.H6(children='Choice:', style={'display': 'inline-block'}),
@@ -76,7 +76,7 @@ app.layout = html.Div([
             
 
             
-            html.Div([ html.H4(children="Change Window Size:", style={'display': 'inline-block' }),
+            html.Div([ html.H5(children="Change Window Size:", style={'display': 'inline-block' }),
                 dcc.Input(id='CorrWindow', value=252, debounce=True)]),
             
             dcc.Graph(id='RollingCorrel')
@@ -141,8 +141,11 @@ app.layout = html.Div([
             ]),
             
             
-
+            # html.Div(id="Test0"),
+            
             dcc.Graph(id="ReturnsGraph"),
+            
+            
             
             dcc.Graph(id="CorrelGraph", style={'display':'block'}),
             html.Div(id="DivSliderWindowCorrel", children=[dcc.Slider(id="SliderWindowCorrel",value = 252, min=5, max=252, marks= {str(x): str(x) for x in [5,10,20,40,60,80,100,200,252]}, step=None,)], ),
@@ -153,12 +156,25 @@ app.layout = html.Div([
     ])
 ])
 
- 
+
+# @app.callback(
+#     Output("Test0", "children"),
+#     [Input("ReturnsGraph", "relayoutData")])
+# def update_Test(Val):
+#     if Val is not None:
+#         if 'xaxis.range[0]' in Val.keys():
+#             return Val['xaxis.range[0]'].split(" ")[0]
+#     else:
+    
+#         return str(Val)
+
+
+
 @app.callback(
     [Output("FutureMaturity", "value"), Output("FutureMaturity", "options")],
     [Input("ChoiceCorrelType", "value")])
 def update_Dropdown(Value):
-    if Value=="Commo": return "1", [{'label': i, 'value': i} for i in range(1,5)]
+    if Value=="Mat": return "1", [{'label': i, 'value': i} for i in range(1,5)]
     else: return "BO", [{'label': i, 'value': i} for i in Liste]
 
 
@@ -169,9 +185,9 @@ def update_Dropdown(Value):
     [Input("CommoWeight1", "value"), Input("CommoPick1", "value"), Input("MaturityPick1", "value"), Input("CommoWeight2", "value"), Input("CommoPick2", "value"), Input("MaturityPick2", "value"),
      Input("CommoWeight3", "value"), Input("CommoPick3", "value"), Input("MaturityPick3", "value"), Input("CommoWeight4", "value"), Input("CommoPick4", "value"), Input("MaturityPick4", "value"),
      Input("CommoWeight5", "value"), Input("CommoPick5", "value"), Input("MaturityPick5", "value"), Input("CommoWeight6", "value"), Input("CommoPick6", "value"), Input("MaturityPick6", "value"),
-     Input("SliderWindowCorrel", "value"),
+     Input("SliderWindowCorrel", "value"), Input("ReturnsGraph", "relayoutData"),
      ])
-def update_graph(Weight1, Commo1, Maturity1, Weight2, Commo2, Maturity2, Weight3, Commo3, Maturity3, Weight4, Commo4, Maturity4, Weight5, Commo5, Maturity5, Weight6, Commo6, Maturity6, Window):
+def update_graph(Weight1, Commo1, Maturity1, Weight2, Commo2, Maturity2, Weight3, Commo3, Maturity3, Weight4, Commo4, Maturity4, Weight5, Commo5, Maturity5, Weight6, Commo6, Maturity6, Window, Date):
     if Weight1 is None: Weight1 = 0
     if Weight2 is None: Weight2 = 0
     if Weight3 is None: Weight3 = 0
@@ -181,10 +197,15 @@ def update_graph(Weight1, Commo1, Maturity1, Weight2, Commo2, Maturity2, Weight3
     
     if Commo1 not in Liste or Commo2 not in Liste or Commo3 not in Liste or Commo4 not in Liste or Commo5 not in Liste or Commo6 not in Liste: return dash.no_update, dash.no_update, dash.no_update
     
+    
+    
     df1 = Weight1*Ret[Commo1+Maturity1] +  Weight3*Ret[Commo3+Maturity3] + Weight5*Ret[Commo5+Maturity5]
     
     df2 = Weight2*Ret[Commo2+Maturity2] + Weight4*Ret[Commo4+Maturity4] + Weight6*Ret[Commo6+Maturity6]
     df = pd.concat((df1, df2), axis=1)
+    if Date is not None: 
+        if 'xaxis.range[0]' in Date.keys(): 
+            df = df[(df.index >= int(Date['xaxis.range[0]'].split(" ")[0].replace("-",""))) & (df.index <= int(Date['xaxis.range[1]'].split(" ")[0].replace("-","")))]
     Window = int(Window)
     
     if Weight2==0 and Weight4==0 and Weight6==0: return {'data':[dict(x=[0,1,2], y=[0,0,0])],'layout':dict(title='Please select a correlation pairs')}, {'display':'none'}, {'display':'none'}
@@ -194,9 +215,10 @@ def update_graph(Weight1, Commo1, Maturity1, Weight2, Commo2, Maturity2, Weight3
             'data': [    dict(x= pd.to_datetime(df.index[Window:], format="%Y%m%d") , 
                               y= [df.iloc[z:z+Window].corr().iloc[0,1] for z in range(len(df)-Window) ] )
                 ],
-            'layout': dict(title='Correlation')
+            'layout': dict(title='Correlation (Left Vs. Right Commodities)')
             
             }, {}, {"width":"50%"}
+
 
 
 
@@ -224,8 +246,9 @@ def update_text(Plus, Moins):
     [Input("CommoWeight1", "value"), Input("CommoPick1", "value"), Input("MaturityPick1", "value"), Input("CommoWeight2", "value"), Input("CommoPick2", "value"), Input("MaturityPick2", "value"),
      Input("CommoWeight3", "value"), Input("CommoPick3", "value"), Input("MaturityPick3", "value"), Input("CommoWeight4", "value"), Input("CommoPick4", "value"), Input("MaturityPick4", "value"),
      Input("CommoWeight5", "value"), Input("CommoPick5", "value"), Input("MaturityPick5", "value"), Input("CommoWeight6", "value"), Input("CommoPick6", "value"), Input("MaturityPick6", "value"),
+     Input("ReturnsGraph", "relayoutData")
      ])
-def update_graph(Weight1, Commo1, Maturity1, Weight2, Commo2, Maturity2, Weight3, Commo3, Maturity3, Weight4, Commo4, Maturity4, Weight5, Commo5, Maturity5, Weight6, Commo6, Maturity6):
+def update_graph2(Weight1, Commo1, Maturity1, Weight2, Commo2, Maturity2, Weight3, Commo3, Maturity3, Weight4, Commo4, Maturity4, Weight5, Commo5, Maturity5, Weight6, Commo6, Maturity6, Date):
     if Weight1 is None: Weight1 = 0
     if Weight2 is None: Weight2 = 0
     if Weight3 is None: Weight3 = 0
@@ -234,12 +257,16 @@ def update_graph(Weight1, Commo1, Maturity1, Weight2, Commo2, Maturity2, Weight3
     if Weight6 is None: Weight6 = 0
         
     df = Weight1*Ret[Commo1+Maturity1] + Weight2*Ret[Commo2+Maturity2] + Weight3*Ret[Commo3+Maturity3] + Weight4*Ret[Commo4+Maturity4] + Weight5*Ret[Commo5+Maturity5] + Weight6*Ret[Commo6+Maturity6]
-    df = df+1
-    df.iloc[0] = 100   
+    df1 = df+1
+    if Date is not None: 
+        if 'xaxis.range[0]' in Date.keys(): 
+            df1 = df1[df1.index >= int(Date['xaxis.range[0]'].split(" ")[0].replace("-",""))]
+    df1 = df1.dropna()
+    df1.iloc[0] = 100   
   
     return {
-        'data': [    dict(x= pd.to_datetime(df.index, format="%Y%m%d") , 
-                          y= [x for x in df.cumprod()], 
+        'data': [    dict(x= pd.to_datetime(df1.index, format="%Y%m%d") , 
+                          y= [x for x in df1.cumprod()], 
                           name= 'Cumulated Returns')
                  ],
         'layout': dict(title='Returns')
@@ -247,8 +274,8 @@ def update_graph(Weight1, Commo1, Maturity1, Weight2, Commo2, Maturity2, Weight3
 
 @app.callback(
     Output("ACF", "figure"),
-    [Input("CommoWeight1", "value"), Input("CommoPick1", "value"), Input("MaturityPick1", "value"), Input("CommoWeight2", "value"), Input("CommoPick2", "value"), Input("MaturityPick2", "value")])
-def update_graph2(Weight1, Commo1, Maturity1, Weight2, Commo2, Maturity2):
+    [Input("CommoWeight1", "value"), Input("CommoPick1", "value"), Input("MaturityPick1", "value"), Input("CommoWeight2", "value"), Input("CommoPick2", "value"), Input("MaturityPick2", "value"), Input("ReturnsGraph", "relayoutData"),])
+def update_graph3(Weight1, Commo1, Maturity1, Weight2, Commo2, Maturity2, Date):
     Title = ""
     if Weight1 is None:
         Weight1 = 0
@@ -258,6 +285,12 @@ def update_graph2(Weight1, Commo1, Maturity1, Weight2, Commo2, Maturity2):
     if Weight2 != 0: Title = Title + Commo2
     if len(Title) > 2: Title = Title[:2] +" & " + Title[2:]
     df = Weight1 * Ret[Commo1+Maturity1] + Weight2 * Ret[Commo2+Maturity2]
+    if Date is not None: 
+        if 'xaxis.range[0]' in Date.keys(): 
+            df = df[(df.index >= int(Date['xaxis.range[0]'].split(" ")[0].replace("-",""))) & (df.index <= int(Date['xaxis.range[1]'].split(" ")[0].replace("-","")))]
+
+    
+    
     ACFListe = []
     ConfLvl = []
     for x in range(1,40):
