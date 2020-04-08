@@ -43,6 +43,30 @@ app.layout = html.Div([
     dcc.Tabs([
         dcc.Tab(label='Risk Metrics', children=[
             html.H4(children='Value at Risk and MaxDrawdown'),
+            
+                dcc.Upload(id='upload-data',
+                           children=html.Div([
+            'Drag and Drop or ',
+            html.A('Select Files')
+        ]),
+            style={
+            'width': '100%',
+            'height': '60px',
+            'lineHeight': '60px',
+            'borderWidth': '1px',
+            'borderStyle': 'dashed',
+            'borderRadius': '5px',
+            'textAlign': 'center',
+            'margin': '10px'
+        },
+                    
+                    
+                    ),
+            
+            
+            
+            
+            
             dash_table.DataTable(
                 id='table1',
                 columns=[{"name": i, "id": i} for i in df.columns],
@@ -170,6 +194,7 @@ app.layout = html.Div([
 #     else:
     
 #         return str(Val)
+
 
 
 
