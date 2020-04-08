@@ -79,7 +79,10 @@ app.layout = html.Div([
             html.Div([ html.H5(children="Change Window Size:", style={'display': 'inline-block' }),
                 dcc.Input(id='CorrWindow', value=252, debounce=True)]),
             
-            dcc.Graph(id='RollingCorrel')
+            dcc.Graph(id='RollingCorrel'),
+            
+            dcc.Graph(id='TermStructure'),
+            
         ]),
             
         dcc.Tab(label='Backtest', children=[
@@ -170,6 +173,8 @@ app.layout = html.Div([
 
 
 
+
+
 @app.callback(
     [Output("FutureMaturity", "value"), Output("FutureMaturity", "options")],
     [Input("ChoiceCorrelType", "value")])
@@ -177,6 +182,20 @@ def update_Dropdown(Value):
     if Value=="Mat": return "1", [{'label': i, 'value': i} for i in range(1,5)]
     else: return "BO", [{'label': i, 'value': i} for i in Liste]
 
+
+@app.callback(
+    [Output("TermStructure", "style"), Output("TermStructure", "figure")],
+    [Input("ChoiceCorrelType", "value"), Input("FutureMaturity", "value")])
+def update_graph4(Value, Commo):
+    if Value=="Mat": 
+        return {'display': 'none'}, {'data':[dict(x=[0,1,2], y=[0,0,0])],'layout':dict(title='Please select a correlation pairs')}
+    else: 
+
+        return {'display': 'block'}, {
+            'data': [    dict(x=  [x for x in Ret.columns if str(Commo) in x] , 
+                              y= [x for x in Ret[[x for x in Ret.columns if str(Commo) in x]].dropna().iloc[-1]] ) ],
+            'layout': dict(title= "1Day Returns Term Structure of " + str(Commo))
+            }
 
 
 

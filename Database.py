@@ -86,8 +86,10 @@ Commos = ['BO',
 
 for x in Commos:
     for Futures in range(1,9):
-        print(x)
-        Updatedb(x + str(Futures) + " Comdty")
+        if x in ["PL", "W ", "ZRR", "AC"] and Futures > 5 :
+            continue
+        else:
+            Updatedb(x + str(Futures) + " Comdty")
         
         
         

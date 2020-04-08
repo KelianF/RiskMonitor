@@ -100,7 +100,7 @@ def MDDdf(Ret):
     return pd.DataFrame(MDDDico).T
 
 def GivePercentage(df, Date):
-    df = df.iloc[:Date][-60:]
+    df = df.iloc[:Date][-60:].dropna()
     df = df + 1
     df.iloc[0] = 100
     return df.cumprod().iloc[-1] / 100 -1
@@ -164,7 +164,7 @@ def main():
 
 
 
-
+#main()
  
 
 
