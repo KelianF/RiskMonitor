@@ -64,9 +64,6 @@ app.layout = html.Div([
                     ),
             
             
-            
-            
-            
             dash_table.DataTable(
                 id='table1',
                 columns=[{"name": i, "id": i} for i in df.columns],
@@ -182,20 +179,6 @@ app.layout = html.Div([
         ]),
     ])
 ])
-
-
-# @app.callback(
-#     Output("Test0", "children"),
-#     [Input("ReturnsGraph", "relayoutData")])
-# def update_Test(Val):
-#     if Val is not None:
-#         if 'xaxis.range[0]' in Val.keys():
-#             return Val['xaxis.range[0]'].split(" ")[0]
-#     else:
-    
-#         return str(Val)
-
-
 
 
 
@@ -357,8 +340,6 @@ def update_graph3(Weight1, Commo1, Maturity1, Weight2, Commo2, Maturity2, Date):
                             showlegend =False,
                             mode= 'line',
                             line=dict(color='black', dash='dash'),),
-                     
-                 
                  ],
         'layout': dict(title='AutoCorrelation Function',
                        xaxis={'tickmode':'linear'},)

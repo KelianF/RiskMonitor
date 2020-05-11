@@ -10,10 +10,11 @@ import matplotlib.pyplot as plt
 
 from xbbg import blp
 import os
+from VaRTest import RunDB
 
 
 def Updatedb(Ticker, Start = "20000101", End = pd.Timestamp.today().strftime("%Y%m%d")):
-    print(len(Ticker), type(Ticker), Ticker)
+    #print(len(Ticker), type(Ticker), Ticker)
     if Ticker + ".csv" in os.listdir(r"\\10.155.31.149\멀티에셋\Kelian\DATA\COMMO"):   # Folder Location
         #print("Got From DataBase")
         Pointer = pd.read_csv(r"\\10.155.31.149\멀티에셋\Kelian\DATA\COMMO\\" + Ticker + ".csv", index_col=0)
@@ -90,7 +91,7 @@ for x in Commos:
             continue
         else:
             Updatedb(x + str(Futures) + " Comdty")
-        
+RunDB()
         
         
         

@@ -56,8 +56,9 @@ def MDD(Ret, Method = "Points"):
         if Price.iloc[x,2] == 0.0:
             Base = Price.iloc[x,0]
         Price.iloc[x,3] = Price.iloc[x,0] / Base - 1
-    
-    if Method[:3] == "Poi":
+    if Method[:3] == "All":
+        return round(max(Price.Diff),2), round(max(Price.Diff),2), pd.to_datetime(Price[Price.Diff == max(Price.Diff)].index[0], format="%Y%m%d").strftime("%Y-%m-%d")
+    elif Method[:3] == "Poi":
         return round(max(Price.Diff),2)
     elif Method[:3] == "Per":
         return round(100 * min(Price.Perct), 2)
@@ -94,9 +95,10 @@ def MDDdf(Ret):
     MDDDico = {}
     for x in Ret.columns:
         MDDDico[x] = {}    
-        MDDDico[x]["MDD Points"] = MDD(Ret[x], Method = "Points")
-        MDDDico[x]["MDD %"] = MDD(Ret[x], Method = "Percentage")
-        MDDDico[x]["MDD Dates"] = MDD(Ret[x], Method = "Date") #.astype(str)
+        MDDDico[x]["MDD Points"], MDDDico[x]["MDD %"], MDDDico[x]["MDD Dates"] = MDD(Ret[x], Method = "All")
+        # MDDDico[x]["MDD Points"] = MDD(Ret[x], Method = "Points")
+        # MDDDico[x]["MDD %"] = MDD(Ret[x], Method = "Percentage")
+        # MDDDico[x]["MDD Dates"] = MDD(Ret[x], Method = "Date") #.astype(str)
     return pd.DataFrame(MDDDico).T
 
 def GivePercentage(df, Date):
@@ -151,6 +153,13 @@ def Returns(Selection = False):
     #df = df.dropna()
     return (np.log(df) - np.log(df.shift(1))).iloc[1:]
 
+def RunDB():
+    Ret = Returns(Selection = True)
+    df = pd.concat((BasicStats(Ret), MDDdf(Ret), MDD1_5D(Ret), VaRCovariance(Ret) ), axis=1).reset_index()
+    df = SecondOrderMetrics(df, Ret)
+    df.to_csv( r"\\10.155.31.149\멀티에셋\Kelian\Risk/" + pd.to_datetime("now").strftime("%Y%m%d%p") + ".csv")
+    return "Done!"
+
 def main():
     Ret = Returns(Selection = True)
     if pd.to_datetime("now").strftime("%Y%m%d%p") + ".csv" == max(os.listdir(r"\\10.155.31.149\멀티에셋\Kelian\Risk\\")):
@@ -164,10 +173,23 @@ def main():
 
 
 
+
 #main()
- 
 
 
+# import time
+
+
+# tic = time.time()
+# Ret = Returns(Selection = True)
+# toc = time.time() - tic
+# print(toc/60)
+
+
+# tic = time.time()
+# MDDdf(Ret)
+# toc = time.time() - tic
+# print(toc/60)
 
 
 
