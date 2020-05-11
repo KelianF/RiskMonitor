@@ -122,14 +122,14 @@ app.layout = html.Div([
                 children=[
                         html.Div([dcc.Input(id="CommoWeight1", value = 1, type='number', style={'width':'25%', 'position': 'absolute', 'bottom': '0','margin-left': '0px'})]),
                         html.Div([ html.Label(["Pick a Commo:", dcc.Dropdown(id="CommoPick1", options=[{'label':x, 'value':x} for x in Liste], value="BO",style={'width': '100%'}  )])], style={'margin-left': '75px'}),
-                        html.Div([ html.Label(["Pick a Maturity:", dcc.Dropdown(id="MaturityPick1", options=[{'label':str(x), 'value':str(x)} for x in range(1,5)], value="1",style={'width': '100%'} )])], style={'margin-left': '5px'} ),
+                        html.Div([ html.Label(["Pick a Maturity:", dcc.Dropdown(id="MaturityPick1", options=[{'label':str(x), 'value':str(x)} for x in range(1,9)], value="1",style={'width': '100%'} )])], style={'margin-left': '5px'} ),
             ]),
             
             html.Div(id="CommoInput2", className='row', style = {'display': 'none' },
                 children=[
                         html.Div([dcc.Input(id="CommoWeight2", value = 0, type='number', style={'width':'25%', 'position': 'absolute', 'bottom': '0','margin-left': '0px'})]),
                         html.Div([ html.Label(["Pick a Commo:", dcc.Dropdown(id="CommoPick2", options=[{'label':x, 'value':x} for x in Liste], value="BO",style={'width': '100%'}  )])], style={'margin-left': '75px'}),
-                        html.Div([ html.Label(["Pick a Maturity:", dcc.Dropdown(id="MaturityPick2", options=[{'label':str(x), 'value':str(x)} for x in range(1,5)], value="1",style={'width': '100%'} )])], style={'margin-left': '5px'} ),
+                        html.Div([ html.Label(["Pick a Maturity:", dcc.Dropdown(id="MaturityPick2", options=[{'label':str(x), 'value':str(x)} for x in range(1,9)], value="1",style={'width': '100%'} )])], style={'margin-left': '5px'} ),
             ]),
             
             html.Div(html.Br()),
@@ -138,14 +138,14 @@ app.layout = html.Div([
                 children=[
                         html.Div([dcc.Input(id="CommoWeight3", value = 0, type='number', style={'width':'25%', 'position': 'absolute', 'bottom': '0','margin-left': '0px'})]),
                         html.Div([ html.Label(["Pick a Commo:", dcc.Dropdown(id="CommoPick3", options=[{'label':x, 'value':x} for x in Liste], value="BO",style={'width': '100%'}  )])], style={'margin-left': '75px'}),
-                        html.Div([ html.Label(["Pick a Maturity:", dcc.Dropdown(id="MaturityPick3", options=[{'label':str(x), 'value':str(x)} for x in range(1,5)], value="1",style={'width': '100%'} )])], style={'margin-left': '5px'} ),
+                        html.Div([ html.Label(["Pick a Maturity:", dcc.Dropdown(id="MaturityPick3", options=[{'label':str(x), 'value':str(x)} for x in range(1,9)], value="1",style={'width': '100%'} )])], style={'margin-left': '5px'} ),
             ]),
             
             html.Div(id="CommoInput4", className='row', style={'display': 'none'},
                 children=[
                         html.Div([dcc.Input(id="CommoWeight4", value = 0, type='number', style={'width':'25%', 'position': 'absolute', 'bottom': '0','margin-left': '0px'})]),
                         html.Div([ html.Label(["Pick a Commo:", dcc.Dropdown(id="CommoPick4", options=[{'label':x, 'value':x} for x in Liste], value="BO",style={'width': '100%'}  )])], style={'margin-left': '75px'}),
-                        html.Div([ html.Label(["Pick a Maturity:", dcc.Dropdown(id="MaturityPick4", options=[{'label':str(x), 'value':str(x)} for x in range(1,5)], value="1",style={'width': '100%'} )])], style={'margin-left': '5px'} ),
+                        html.Div([ html.Label(["Pick a Maturity:", dcc.Dropdown(id="MaturityPick4", options=[{'label':str(x), 'value':str(x)} for x in range(1,9)], value="1",style={'width': '100%'} )])], style={'margin-left': '5px'} ),
             ]),
             
             html.Div(html.Br()),
@@ -154,14 +154,14 @@ app.layout = html.Div([
                 children=[
                         html.Div([dcc.Input(id="CommoWeight5", value = 0, type='number', style={'width':'25%', 'position': 'absolute', 'bottom': '0','margin-left': '0px'})]),
                         html.Div([ html.Label(["Pick a Commo:", dcc.Dropdown(id="CommoPick5", options=[{'label':x, 'value':x} for x in Liste], value="BO",style={'width': '100%'}  )])], style={'margin-left': '75px'}),
-                        html.Div([ html.Label(["Pick a Maturity:", dcc.Dropdown(id="MaturityPick5", options=[{'label':str(x), 'value':str(x)} for x in range(1,5)], value="1",style={'width': '100%'} )])], style={'margin-left': '5px'} ),
+                        html.Div([ html.Label(["Pick a Maturity:", dcc.Dropdown(id="MaturityPick5", options=[{'label':str(x), 'value':str(x)} for x in range(1,9)], value="1",style={'width': '100%'} )])], style={'margin-left': '5px'} ),
             ]),
             
             html.Div(id="CommoInput6", className='row', style={'display': 'none'},
                 children=[
                         html.Div([dcc.Input(id="CommoWeight6", value = 0, type='number', style={'width':'25%', 'position': 'absolute', 'bottom': '0','margin-left': '0px'})]),
                         html.Div([ html.Label(["Pick a Commo:", dcc.Dropdown(id="CommoPick6", options=[{'label':x, 'value':x} for x in Liste], value="BO",style={'width': '100%'}  )])], style={'margin-left': '75px'}),
-                        html.Div([ html.Label(["Pick a Maturity:", dcc.Dropdown(id="MaturityPick6", options=[{'label':str(x), 'value':str(x)} for x in range(1,5)], value="1",style={'width': '100%'} )])], style={'margin-left': '5px'} ),
+                        html.Div([ html.Label(["Pick a Maturity:", dcc.Dropdown(id="MaturityPick6", options=[{'label':str(x), 'value':str(x)} for x in range(1,9)], value="1",style={'width': '100%'} )])], style={'margin-left': '5px'} ),
             ]),
             
             
@@ -187,7 +187,7 @@ app.layout = html.Div([
     [Output("FutureMaturity", "value"), Output("FutureMaturity", "options")],
     [Input("ChoiceCorrelType", "value")])
 def update_Dropdown(Value):
-    if Value=="Mat": return "1", [{'label': i, 'value': i} for i in range(1,5)]
+    if Value=="Mat": return "1", [{'label': i, 'value': i} for i in range(1,9)]
     else: return "BO", [{'label': i, 'value': i} for i in Liste]
 
 
