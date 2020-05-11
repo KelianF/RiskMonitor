@@ -102,7 +102,7 @@ app.layout = html.Div([
             
             dcc.Graph(id='RollingCorrel'),
             
-            dcc.Graph(id='TermStructure'),
+            # dcc.Graph(id='TermStructure'),
             
         ]),
             
@@ -169,12 +169,10 @@ app.layout = html.Div([
             
             dcc.Graph(id="ReturnsGraph"),
             
-            
-            
             dcc.Graph(id="CorrelGraph", style={'display':'block'}),
             html.Div(id="DivSliderWindowCorrel", children=[dcc.Slider(id="SliderWindowCorrel",value = 252, min=5, max=252, marks= {str(x): str(x) for x in [5,10,20,40,60,80,100,200,252]}, step=None,)], ),
-            html.Br(),
-            dcc.Graph(id="ACF"),
+            # html.Br(),
+            # dcc.Graph(id="ACF"),
             
         ]),
     ])
@@ -191,19 +189,19 @@ def update_Dropdown(Value):
     else: return "BO", [{'label': i, 'value': i} for i in Liste]
 
 
-@app.callback(
-    [Output("TermStructure", "style"), Output("TermStructure", "figure")],
-    [Input("ChoiceCorrelType", "value"), Input("FutureMaturity", "value")])
-def update_graph4(Value, Commo):
-    if Value=="Mat": 
-        return {'display': 'none'}, {'data':[dict(x=[0,1,2], y=[0,0,0])],'layout':dict(title='Please select a correlation pairs')}
-    else: 
+# @app.callback(
+#     [Output("TermStructure", "style"), Output("TermStructure", "figure")],
+#     [Input("ChoiceCorrelType", "value"), Input("FutureMaturity", "value")])
+# def update_graph4(Value, Commo):
+#     if Value=="Mat": 
+#         return {'display': 'none'}, {'data':[dict(x=[0,1,2], y=[0,0,0])],'layout':dict(title='Please select a correlation pairs')}
+#     else: 
 
-        return {'display': 'block'}, {
-            'data': [    dict(x=  [x for x in Ret.columns if str(Commo) in x] , 
-                              y= [x for x in Ret[[x for x in Ret.columns if str(Commo) in x]].dropna().iloc[-1]] ) ],
-            'layout': dict(title= "1Day Returns Term Structure of " + str(Commo))
-            }
+#         return {'display': 'block'}, {
+#             'data': [    dict(x=  [x for x in Ret.columns if str(Commo) in x] , 
+#                               y= [x for x in Ret[[x for x in Ret.columns if str(Commo) in x]].dropna().iloc[-1]] ) ],
+#             'layout': dict(title= "1Day Returns Term Structure of " + str(Commo))
+#             }
 
 
 
@@ -299,51 +297,51 @@ def update_graph2(Weight1, Commo1, Maturity1, Weight2, Commo2, Maturity2, Weight
         'layout': dict(title='Returns')
         }
 
-@app.callback(
-    Output("ACF", "figure"),
-    [Input("CommoWeight1", "value"), Input("CommoPick1", "value"), Input("MaturityPick1", "value"), Input("CommoWeight2", "value"), Input("CommoPick2", "value"), Input("MaturityPick2", "value"), Input("ReturnsGraph", "relayoutData"),])
-def update_graph3(Weight1, Commo1, Maturity1, Weight2, Commo2, Maturity2, Date):
-    Title = ""
-    if Weight1 is None:
-        Weight1 = 0
-    if Weight2 is None:
-        Weight2 = 0
-    if Weight1 != 0: Title = Title + Commo1
-    if Weight2 != 0: Title = Title + Commo2
-    if len(Title) > 2: Title = Title[:2] +" & " + Title[2:]
-    df = Weight1 * Ret[Commo1+Maturity1] + Weight2 * Ret[Commo2+Maturity2]
-    if Date is not None: 
-        if 'xaxis.range[0]' in Date.keys(): 
-            df = df[(df.index >= int(Date['xaxis.range[0]'].split(" ")[0].replace("-",""))) & (df.index <= int(Date['xaxis.range[1]'].split(" ")[0].replace("-","")))]
+# @app.callback(
+#     Output("ACF", "figure"),
+#     [Input("CommoWeight1", "value"), Input("CommoPick1", "value"), Input("MaturityPick1", "value"), Input("CommoWeight2", "value"), Input("CommoPick2", "value"), Input("MaturityPick2", "value"), Input("ReturnsGraph", "relayoutData"),])
+# def update_graph3(Weight1, Commo1, Maturity1, Weight2, Commo2, Maturity2, Date):
+#     Title = ""
+#     if Weight1 is None:
+#         Weight1 = 0
+#     if Weight2 is None:
+#         Weight2 = 0
+#     if Weight1 != 0: Title = Title + Commo1
+#     if Weight2 != 0: Title = Title + Commo2
+#     if len(Title) > 2: Title = Title[:2] +" & " + Title[2:]
+#     df = Weight1 * Ret[Commo1+Maturity1] + Weight2 * Ret[Commo2+Maturity2]
+#     if Date is not None: 
+#         if 'xaxis.range[0]' in Date.keys(): 
+#             df = df[(df.index >= int(Date['xaxis.range[0]'].split(" ")[0].replace("-",""))) & (df.index <= int(Date['xaxis.range[1]'].split(" ")[0].replace("-","")))]
 
     
     
-    ACFListe = []
-    ConfLvl = []
-    for x in range(1,40):
-        ACFListe.append( pd.concat((df, df.shift(x)), axis=1).dropna().corr().iloc[0,1] )
-        ConfLvl.append( 1.96 / np.sqrt(len(df)-x) )
-    return {
-        'data': [    dict(x= [x for x in range(1,len(ACFListe))] , 
-                          y= [x for x in ACFListe], 
-                          type= 'bar',
-                          name= 'Cumulated Returns'),
-                     dict(x= [x for x in range(1,len(ACFListe))] , 
-                          y= [x for x in ConfLvl], 
-                          color = 'black',
-                          mode= 'line',
-                          line=dict(color='black', dash='dash'),
-                          name= 'Confidence Level'),
-                       dict(x= [x for x in range(1,len(ACFListe))] , 
-                            y= [-x for x in ConfLvl], 
-                            color = 'black',
-                            showlegend =False,
-                            mode= 'line',
-                            line=dict(color='black', dash='dash'),),
-                 ],
-        'layout': dict(title='AutoCorrelation Function',
-                       xaxis={'tickmode':'linear'},)
-        }
+#     ACFListe = []
+#     ConfLvl = []
+#     for x in range(1,40):
+#         ACFListe.append( pd.concat((df, df.shift(x)), axis=1).dropna().corr().iloc[0,1] )
+#         ConfLvl.append( 1.96 / np.sqrt(len(df)-x) )
+#     return {
+#         'data': [    dict(x= [x for x in range(1,len(ACFListe))] , 
+#                           y= [x for x in ACFListe], 
+#                           type= 'bar',
+#                           name= 'Cumulated Returns'),
+#                      dict(x= [x for x in range(1,len(ACFListe))] , 
+#                           y= [x for x in ConfLvl], 
+#                           color = 'black',
+#                           mode= 'line',
+#                           line=dict(color='black', dash='dash'),
+#                           name= 'Confidence Level'),
+#                        dict(x= [x for x in range(1,len(ACFListe))] , 
+#                             y= [-x for x in ConfLvl], 
+#                             color = 'black',
+#                             showlegend =False,
+#                             mode= 'line',
+#                             line=dict(color='black', dash='dash'),),
+#                  ],
+#         'layout': dict(title='AutoCorrelation Function',
+#                        xaxis={'tickmode':'linear'},)
+#         }
 
  
 @app.callback(
