@@ -353,7 +353,7 @@ def update_table(value):
     columns=[{"name": i, "id": i} for i in Correl.columns]
     return (data, columns)
         
-    
+
 @app.callback(
     Output('RollingCorrel', 'figure'),
     [Input('Correltable', 'active_cell'), Input('Correltable', 'data'), Input('CorrWindow', 'value')])

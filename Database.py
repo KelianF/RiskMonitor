@@ -15,9 +15,9 @@ from VaRTest import RunDB
 
 def Updatedb(Ticker, Start = "20000101", End = pd.Timestamp.today().strftime("%Y%m%d")):
     #print(len(Ticker), type(Ticker), Ticker)
-    if Ticker + ".csv" in os.listdir(r"\\10.155.31.149\멀티에셋\Kelian\DATA\COMMO"):   # Folder Location
+    if Ticker + ".csv" in os.listdir(r"\\10.155.31.149\d\멀티에셋\Kelian\DATA\COMMO"):   # Folder Location
         #print("Got From DataBase")
-        Pointer = pd.read_csv(r"\\10.155.31.149\멀티에셋\Kelian\DATA\COMMO\\" + Ticker + ".csv", index_col=0)
+        Pointer = pd.read_csv(r"\\10.155.31.149\d\멀티에셋\Kelian\DATA\COMMO\\" + Ticker + ".csv", index_col=0)
         if str(Pointer.index.max()) < End:
             Pointer2 = blp.bdh(tickers= [Ticker],start_date = str(Pointer.index.max()) , end_date = End)
             if len(Pointer2[Pointer2.index > str(Pointer.index.max())]) != 0:
@@ -26,14 +26,14 @@ def Updatedb(Ticker, Start = "20000101", End = pd.Timestamp.today().strftime("%Y
                 Pointer2.columns = [Ticker]
                 Pointer = pd.concat((Pointer, Pointer2), axis = 0)
                 Pointer = Pointer[~Pointer.index.duplicated()]
-            Pointer.to_csv(r"\\10.155.31.149\멀티에셋\Kelian\DATA\COMMO\\" + Ticker + ".csv", index=True)
+            Pointer.to_csv(r"\\10.155.31.149\d\멀티에셋\Kelian\DATA\COMMO\\" + Ticker + ".csv", index=True)
                 
         return Pointer
     else: # Twice
         Pointer = blp.bdh(tickers= [Ticker],start_date = Start , end_date = End)
         Pointer.index = Pointer.index.strftime("%Y%m%d")
         Pointer.columns = [Ticker]
-        Pointer.to_csv(r"\\10.155.31.149\멀티에셋\Kelian\DATA\COMMO\\" + Ticker + ".csv", index=True)
+        Pointer.to_csv(r"\\10.155.31.149\d\멀티에셋\Kelian\DATA\COMMO\\" + Ticker + ".csv", index=True)
         return Pointer
 
 
