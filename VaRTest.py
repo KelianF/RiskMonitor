@@ -12,11 +12,11 @@ import numpy as np
 
 def GetData():
     df = None
-    for x in os.listdir(r"\\10.155.31.149\d\멀티에셋\Kelian\DATA\COMMO\\"):
+    for x in os.listdir(r"\\10.155.31.53\Share\Kelian\DATA\COMMO\\"):
         if df is None:
-            df = pd.read_csv(r"\\10.155.31.149\d\멀티에셋\Kelian\DATA\COMMO\\" + x, index_col =0)
+            df = pd.read_csv(r"\\10.155.31.53\Share\Kelian\DATA\COMMO\\" + x, index_col =0)
         else:
-            df = pd.concat((df, pd.read_csv(r"\\10.155.31.149\d\멀티에셋\Kelian\DATA\COMMO\\" + x, index_col =0)), axis = 1)
+            df = pd.concat((df, pd.read_csv(r"\\10.155.31.53\Share\Kelian\DATA\COMMO\\" + x, index_col =0)), axis = 1)
     df.columns = [' '.join(x.split(" ")[:-1]) for x in df.columns]
     return df
 
@@ -157,18 +157,18 @@ def RunDB():
     Ret = Returns(Selection = True)
     df = pd.concat((BasicStats(Ret), MDDdf(Ret), MDD1_5D(Ret), VaRCovariance(Ret) ), axis=1).reset_index()
     df = SecondOrderMetrics(df, Ret)
-    df.to_csv( r"\\10.155.31.149\d\멀티에셋\Kelian\Risk/" + pd.to_datetime("now").strftime("%Y%m%d%p") + ".csv")
+    df.to_csv( r"\\10.155.31.53\Share\Kelian\Risk/" + pd.to_datetime("now").strftime("%Y%m%d%p") + ".csv")
     return "Done!"
 
 def main():
     Ret = Returns(Selection = True)
-    if pd.to_datetime("now").strftime("%Y%m%d%p") + ".csv" == max(os.listdir(r"\\10.155.31.149\d\멀티에셋\Kelian\Risk\\")):
-        df = pd.read_csv(r"\\10.155.31.149\d\멀티에셋\Kelian\Risk\\" + max(os.listdir(r"\\10.155.31.149\d\멀티에셋\Kelian\Risk\\")), index_col = 0)
+    if pd.to_datetime("now").strftime("%Y%m%d%p") + ".csv" == max(os.listdir(r"\\10.155.31.53\Share\Kelian\Risk\\")):
+        df = pd.read_csv(r"\\10.155.31.53\Share\Kelian\Risk\\" + max(os.listdir(r"\\10.155.31.53\Share\Kelian\Risk\\")), index_col = 0)
     else:
         print("Long part")
         df = pd.concat((BasicStats(Ret), MDDdf(Ret), MDD1_5D(Ret), VaRCovariance(Ret) ), axis=1).reset_index()
         df = SecondOrderMetrics(df, Ret)
-        df.to_csv( r"\\10.155.31.149\d\멀티에셋\Kelian\Risk/" + pd.to_datetime("now").strftime("%Y%m%d%p") + ".csv")
+        df.to_csv( r"\\10.155.31.53\Share\Kelian\Risk/" + pd.to_datetime("now").strftime("%Y%m%d%p") + ".csv")
     return df
 
 
